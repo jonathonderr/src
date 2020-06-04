@@ -1,4 +1,4 @@
-/* $NetBSD: systrace_args.c,v 1.38 2020/04/26 19:16:36 thorpej Exp $ */
+/* $NetBSD$ */
 
 /*
  * System call argument to DTrace register array converstion.
@@ -3605,9 +3605,10 @@ systrace_args(register_t sysnum, const void *params, uintptr_t *uarg, size_t *n_
 		uarg[1] = (intptr_t) SCARG(p, path); /* const char * */
 		uarg[2] = (intptr_t) SCARG(p, file_actions); /* const struct posix_spawn_file_actions * */
 		uarg[3] = (intptr_t) SCARG(p, attrp); /* const struct posix_spawnattr * */
-		uarg[4] = (intptr_t) SCARG(p, argv); /* char *const * */
-		uarg[5] = (intptr_t) SCARG(p, envp); /* char *const * */
-		*n_args = 6;
+		uarg[4] = (intptr_t) SCARG(p, wd); /* const char * */
+		uarg[5] = (intptr_t) SCARG(p, argv); /* char *const * */
+		uarg[6] = (intptr_t) SCARG(p, envp); /* char *const * */
+		*n_args = 7;
 		break;
 	}
 	/* sys_recvmmsg */
@@ -9826,9 +9827,12 @@ systrace_entry_setargdesc(int sysnum, int ndx, char *desc, size_t descsz)
 			p = "const struct posix_spawnattr *";
 			break;
 		case 4:
-			p = "char *const *";
+			p = "const char *";
 			break;
 		case 5:
+			p = "char *const *";
+			break;
+		case 6:
 			p = "char *const *";
 			break;
 		default:

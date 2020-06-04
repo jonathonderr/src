@@ -1,4 +1,4 @@
-/* $NetBSD: syscall.h,v 1.313 2020/04/26 19:16:35 thorpej Exp $ */
+/* $NetBSD$ */
 
 /*
  * System call numbers.
@@ -1311,7 +1311,7 @@
 /* syscall: "__quotactl" ret: "int" args: "const char *" "struct quotactl_args *" */
 #define	SYS___quotactl	473
 
-/* syscall: "posix_spawn" ret: "int" args: "pid_t *" "const char *" "const struct posix_spawn_file_actions *" "const struct posix_spawnattr *" "char *const *" "char *const *" */
+/* syscall: "posix_spawn" ret: "int" args: "pid_t *" "const char *" "const struct posix_spawn_file_actions *" "const struct posix_spawnattr *" "const char *" "char *const *" "char *const *" */
 #define	SYS_posix_spawn	474
 
 /* syscall: "recvmmsg" ret: "int" args: "int" "struct mmsghdr *" "unsigned int" "unsigned int" "struct timespec *" */
