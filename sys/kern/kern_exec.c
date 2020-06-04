@@ -2458,6 +2458,9 @@ do_posix_spawn(struct lwp *l1, pid_t *pid_res, bool *child_ok, const char *path,
 
 	p1 = l1->l_proc;
 
+	/* Test Print for Build */
+	printf("do_posix_spawn called!\n");
+
 	/* Allocate and init spawn_data */
 	spawn_data = kmem_zalloc(sizeof(*spawn_data), KM_SLEEP);
 	spawn_data->sed_refcnt = 1; /* only parent so far */
