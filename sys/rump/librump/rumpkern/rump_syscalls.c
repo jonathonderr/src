@@ -1,4 +1,4 @@
-/* $NetBSD: rump_syscalls.c,v 1.149 2020/04/26 19:16:36 thorpej Exp $ */
+/* $NetBSD$ */
 
 /*
  * System call vector and marshalling for rump.
@@ -15,7 +15,7 @@
 
 #ifdef __NetBSD__
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: rump_syscalls.c,v 1.149 2020/04/26 19:16:36 thorpej Exp $");
+__KERNEL_RCSID(0, "$NetBSD$");
 
 #include <sys/fstypes.h>
 #include <sys/proc.h>

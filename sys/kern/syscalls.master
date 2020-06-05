@@ -990,6 +990,7 @@
 474	NOERR		{ int|sys||posix_spawn(pid_t *pid, const char *path, \
 			    const struct posix_spawn_file_actions *file_actions, \
 			    const struct posix_spawnattr *attrp, \
+				const char *wd, \
 			    char *const *argv, char *const *envp); }
 475	STD	RUMP	{ int|sys||recvmmsg(int s, struct mmsghdr *mmsg, \
 			    unsigned int vlen, unsigned int flags, \

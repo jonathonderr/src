@@ -1,4 +1,4 @@
-/* $NetBSD: init_sysent.c,v 1.331 2020/04/26 19:16:36 thorpej Exp $ */
+/* $NetBSD$ */
 
 /*
  * System call switch table.
@@ -8,7 +8,7 @@
  */
 
 #include <sys/cdefs.h>
-__KERNEL_RCSID(0, "$NetBSD: init_sysent.c,v 1.331 2020/04/26 19:16:36 thorpej Exp $");
+__KERNEL_RCSID(0, "$NetBSD$");
 
 #ifdef _KERNEL_OPT
 #include "opt_modular.h"

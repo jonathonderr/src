@@ -1,4 +1,4 @@
-/* $NetBSD: syscallargs.h,v 1.297 2020/04/26 19:16:35 thorpej Exp $ */
+/* $NetBSD$ */
 
 /*
  * System call argument lists.
@@ -3096,6 +3096,7 @@ struct sys_posix_spawn_args {
 	syscallarg(const char *) path;
 	syscallarg(const struct posix_spawn_file_actions *) file_actions;
 	syscallarg(const struct posix_spawnattr *) attrp;
+	syscallarg(const char *) wd;
 	syscallarg(char *const *) argv;
 	syscallarg(char *const *) envp;
 };
