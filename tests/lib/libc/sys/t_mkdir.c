@@ -192,8 +192,8 @@ ATF_TC_BODY(mkdir_trail, tc)
 		(void)rmdir(*test);
 
 		ATF_REQUIRE(mkdir(*test, 0777) == 0);
-		ATF_REQUIRE(rename(*test, "foo") == 0);
-		ATF_REQUIRE(rename("foo/", *test) == 0);
+		ATF_REQUIRE(rename(*test, "bar") == 0);
+		ATF_REQUIRE(rename("bar/", *test) == 0);
 		ATF_REQUIRE(rmdir(*test) == 0);
 	}
 }
