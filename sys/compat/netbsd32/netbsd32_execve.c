@@ -211,7 +211,7 @@ netbsd32_posix_spawn(struct lwp *l,
 	 * Do the spawn
 	 */
 	error = do_posix_spawn(l, &pid, &child_ok, SCARG_P32(uap, path), fa,
-	    sa, SCARG_P32(uap, argv), SCARG_P32(uap, envp),
+	    sa, NULL, SCARG_P32(uap, argv), SCARG_P32(uap, envp),
 	    netbsd32_execve_fetch_element);
 	if (error)
 		goto error_exit;

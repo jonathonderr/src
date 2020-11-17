@@ -52,7 +52,7 @@ ATF_TC_BODY(t_spawn_ls, tc)
 	char * const args[] = { __UNCONST("ls"), __UNCONST("-la"), NULL };
 	int err;
 
-	err = posix_spawn(NULL, "/bin/ls", NULL, NULL, args, NULL);
+	err = posix_spawn(NULL, "/bin/ls", NULL, NULL, ".", args, NULL);
 	ATF_REQUIRE(err == 0);
 }
 
@@ -88,7 +88,7 @@ ATF_TC_BODY(t_spawn_zero, tc)
 	int err;
 
 	snprintf(buf, sizeof buf, "%s/h_zero", atf_tc_get_config_var(tc, "srcdir"));
-	err = posix_spawn(NULL, buf, NULL, NULL, args, NULL);
+	err = posix_spawn(NULL, buf, NULL, NULL, ".", args, NULL);
 	ATF_REQUIRE_MSG(err == ENOEXEC, "expected error %d, got %d when spawning %s", ENOEXEC, err, buf);
 }
 
@@ -108,7 +108,7 @@ ATF_TC_BODY(t_spawn_missing, tc)
 
 	snprintf(buf, sizeof buf, "%s/h_nonexist",
 	    atf_tc_get_config_var(tc, "srcdir"));
-	err = posix_spawn(NULL, buf, NULL, NULL, args, NULL);
+	err = posix_spawn(NULL, buf, NULL, NULL, ".", args, NULL);
 	ATF_REQUIRE_MSG(err == ENOENT, "expected error %d, got %d when spawning %s", ENOENT, err, buf);
 }
 
@@ -128,7 +128,7 @@ ATF_TC_BODY(t_spawn_nonexec, tc)
 
 	snprintf(buf, sizeof buf, "%s/h_nonexec",
 	    atf_tc_get_config_var(tc, "srcdir"));
-	err = posix_spawn(NULL, buf, NULL, NULL, args, NULL);
+	err = posix_spawn(NULL, buf, NULL, NULL, ".", args, NULL);
 	ATF_REQUIRE_MSG(err == ENOENT, "expected error %d, got %d when spawning %s", ENOENT, err, buf);
 }
 
@@ -152,19 +152,19 @@ ATF_TC_BODY(t_spawn_child, tc)
 	snprintf(buf, sizeof buf, "%s/h_spawn",
 	    atf_tc_get_config_var(tc, "srcdir"));
 
-	err = posix_spawn(&pid, buf, NULL, NULL, args0, NULL);
+	err = posix_spawn(&pid, buf, NULL, NULL,".", args0, NULL);
 	ATF_REQUIRE(err == 0);
 	ATF_REQUIRE(pid > 0);
 	waitpid(pid, &status, 0);
 	ATF_REQUIRE(WIFEXITED(status) && WEXITSTATUS(status) == 0);
 
-	err = posix_spawn(&pid, buf, NULL, NULL, args1, NULL);
+	err = posix_spawn(&pid, buf, NULL, NULL, ".", args1, NULL);
 	ATF_REQUIRE(err == 0);
 	ATF_REQUIRE(pid > 0);
 	waitpid(pid, &status, 0);
 	ATF_REQUIRE(WIFEXITED(status) && WEXITSTATUS(status) == 1);
 
-	err = posix_spawn(&pid, buf, NULL, NULL, args7, NULL);
+	err = posix_spawn(&pid, buf, NULL, NULL, ".", args7, NULL);
 	ATF_REQUIRE(err == 0);
 	ATF_REQUIRE(pid > 0);
 	waitpid(pid, &status, 0);

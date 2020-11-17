@@ -108,7 +108,7 @@ int ExecuteCommand(const Command &Cmd) {
   };
   int ErrorCode = 0, ProcessStatus = 0;
   // FIXME: We probably shouldn't hardcode the shell path.
-  ErrorCode = posix_spawn(&Pid, "/bin/sh", NULL, &SpawnAttributes,
+  ErrorCode = posix_spawn(&Pid, "/bin/sh", NULL, &SpawnAttributes,".",
                           Argv, Environ);
   (void)posix_spawnattr_destroy(&SpawnAttributes);
   if (!ErrorCode) {

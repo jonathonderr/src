@@ -2444,6 +2444,7 @@ int
 do_posix_spawn(struct lwp *l1, pid_t *pid_res, bool *child_ok, const char *path,
 	struct posix_spawn_file_actions *fa,
 	struct posix_spawnattr *sa,
+	const char* wd,
 	char *const *argv, char *const *envp,
 	execve_fetch_element_t fetch)
 {
@@ -2683,6 +2684,11 @@ do_posix_spawn(struct lwp *l1, pid_t *pid_res, bool *child_ok, const char *path,
 #ifdef __HAVE_SYSCALL_INTERN
 	(*p2->p_emul->e_syscall_intern)(p2);
 #endif
+	
+	//Really not sure where to put this, but for now we'll try here.
+	//if(wd!=NULL&&strcmp(wd,".")!=0){
+	//	chdir(wd);
+	//}
 
 	/*
 	 * Make child runnable, set start time, and add to run queue except
@@ -2793,7 +2799,7 @@ sys_posix_spawn(struct lwp *l1, const struct sys_posix_spawn_args *uap,
 	 * Do the spawn
 	 */
 	error = do_posix_spawn(l1, &pid, &child_ok, SCARG(uap, path), fa, sa,
-	    SCARG(uap, argv), SCARG(uap, envp), execve_fetch_element);
+	NULL, SCARG(uap, argv), SCARG(uap, envp), execve_fetch_element);
 	if (error)
 		goto error_exit;
 

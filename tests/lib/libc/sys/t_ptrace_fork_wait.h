@@ -56,7 +56,7 @@ fork_body(const char *fn, bool trackspawn, bool trackfork, bool trackvfork,
 
 		if (strcmp(fn, "spawn") == 0) {
 			FORKEE_ASSERT_EQ(posix_spawn(&child2,
-			    arg[0], NULL, NULL, arg, NULL), 0);
+			    arg[0], NULL, NULL,".", arg, NULL), 0);
 		} else {
 			if (strcmp(fn, "fork") == 0) {
 				FORKEE_ASSERT((child2 = fork()) != -1);
@@ -353,7 +353,7 @@ unrelated_tracer_fork_body(const char *fn, bool trackspawn, bool trackfork,
 
 		if (strcmp(fn, "spawn") == 0) {
 			FORKEE_ASSERT_EQ(posix_spawn(&tracee2,
-			    arg[0], NULL, NULL, arg, NULL), 0);
+			    arg[0], NULL, NULL,".", arg, NULL), 0);
 		} else {
 			if (strcmp(fn, "fork") == 0) {
 				FORKEE_ASSERT((tracee2 = fork()) != -1);
@@ -716,7 +716,7 @@ fork_detach_forker_body(const char *fn, bool kill_process)
 
 		if (strcmp(fn, "spawn") == 0) {
 			FORKEE_ASSERT_EQ(posix_spawn(&child2,
-			    arg[0], NULL, NULL, arg, NULL), 0);
+			    arg[0], NULL, NULL,".", arg, NULL), 0);
 		} else  {
 			if (strcmp(fn, "fork") == 0) {
 				FORKEE_ASSERT((child2 = fork()) != -1);
@@ -912,7 +912,7 @@ unrelated_tracer_fork_detach_forker_body(const char *fn, bool kill_process)
 
 		if (strcmp(fn, "spawn") == 0) {
 			FORKEE_ASSERT_EQ(posix_spawn(&tracee2,
-			    arg[0], NULL, NULL, arg, NULL), 0);
+			    arg[0], NULL, NULL,".", arg, NULL), 0);
 		} else  {
 			if (strcmp(fn, "fork") == 0) {
 				FORKEE_ASSERT((tracee2 = fork()) != -1);
@@ -1275,7 +1275,7 @@ fork2_body(const char *fn, bool masked, bool ignored)
 
 		if (strcmp(fn, "spawn") == 0) {
 			FORKEE_ASSERT_EQ(posix_spawn(&child2,
-			    arg[0], NULL, NULL, arg, NULL), 0);
+			    arg[0], NULL, NULL,".", arg, NULL), 0);
 		} else  {
 			if (strcmp(fn, "fork") == 0) {
 				FORKEE_ASSERT((child2 = fork()) != -1);
