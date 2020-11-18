@@ -252,7 +252,7 @@ static bool Execute(ProcessInfo &PI, StringRef Program,
     do {
       PID = 0; // Make Valgrind happy.
       Err = posix_spawn(&PID, Program.str().c_str(), FileActions,
-                        /*attrp*/ nullptr, ".", const_cast<char **>(Argv),
+                        /*attrp*/ nullptr, NULL, const_cast<char **>(Argv),
                         const_cast<char **>(Envp));
     } while (Err == EINTR && ++retries < maxRetries);
 

@@ -62,7 +62,7 @@ int posix_spawnp(pid_t * __restrict pid, const char * __restrict file,
 	 * If there is a / in the name, fall straight through to posix_spawn().
 	 */
 	if (strchr(file, '/') != NULL)
-		return posix_spawn(pid, file, fa, sa, ".", cav, env);
+		return posix_spawn(pid, file, fa, sa, NULL, cav, env);
 
 	/* Get the path we're searching. */
 	if ((path = getenv("PATH")) == NULL)
@@ -140,5 +140,5 @@ int posix_spawnp(pid_t * __restrict pid, const char * __restrict file,
 	/*
 	 * Use posix_spawn() with the found binary
 	 */
-	return posix_spawn(pid, fpath, fa, sa, ".", cav, env);
+	return posix_spawn(pid, fpath, fa, sa, NULL, cav, env);
 }

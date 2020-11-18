@@ -237,7 +237,7 @@ void call_posix_spawn() {
     create_source(file);
 
     pid_t child;
-    if (0 != posix_spawn(&child, "/usr/bin/cc", 0, 0,".", argv, get_environ())) {
+    if (0 != posix_spawn(&child, "/usr/bin/cc", 0, 0, NULL, argv, get_environ())) {
         perror("posix_spawn");
         exit(EXIT_FAILURE);
     }
