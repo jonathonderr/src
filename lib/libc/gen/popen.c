@@ -55,6 +55,7 @@ __RCSID("$NetBSD: popen.c,v 1.36 2019/01/24 18:01:38 christos Exp $");
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <spawn.h>
 
 #include "env.h"
 
@@ -88,6 +89,8 @@ static  mutex_t pidlist_mutex = MUTEX_INITIALIZER;
 # define MUTEX_LOCK() __nothing
 # define MUTEX_UNLOCK() __nothing
 #endif
+
+char ** environ;
 
 static struct pid *
 pdes_get(int *pdes, const char **type)
@@ -198,20 +201,23 @@ popen(const char *cmd, const char *type)
 
 	MUTEX_LOCK();
 	(void)__readlockenv();
-	switch (pid = vfork()) {
-	case -1:			/* Error. */
+	char * argv[] = {};
+	int status;
+	status = posix_spawn(&pid, _PATH_BSHELL, NULL, NULL, NULL, argv, environ);
+	if (status == 0){
+		printf("Child pid: %i\n", status);
+		if(waitpid(pid, &status, 0) != -1){
+			_exit(127);
+		} else {
+			perror("waitpid");
+		}	
+	} else {
 		serrno = errno;
 		(void)__unlockenv();
 		MUTEX_UNLOCK();
 		pdes_error(pdes, cur);
 		errno = serrno;
 		return NULL;
-		/* NOTREACHED */
-	case 0:				/* Child. */
-		pdes_child(pdes, type);
-		execl(_PATH_BSHELL, "sh", "-c", cmd, NULL);
-		_exit(127);
-		/* NOTREACHED */
 	}
 	(void)__unlockenv();
 
