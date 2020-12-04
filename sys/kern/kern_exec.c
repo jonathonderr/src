@@ -109,6 +109,7 @@ __KERNEL_RCSID(0, "$NetBSD: kern_exec.c,v 1.500 2020/05/07 20:02:34 kamil Exp $"
 #include <sys/spawn.h>
 #include <sys/prot.h>
 #include <sys/cprng.h>
+#include <sys/vfs_syscalls.h>
 
 #include <uvm/uvm_extern.h>
 
@@ -2127,7 +2128,7 @@ handle_posix_spawn_attrs(struct posix_spawnattr *attrs, struct proc *parent)
 	mutex_enter(proc_lock);
 	/*
 	 * p_stat should be SACTIVE, so we need to adjust the
-	 * parent's p_nstopchild here.  For safety, just make
+	 * parene's p_nstopchild here.  For safety, just make
 	 * we're on the good side of SDEAD before we adjust.
 	 */
 	int ostat = p->p_stat;
@@ -2555,9 +2556,35 @@ do_posix_spawn(struct lwp *l1, pid_t *pid_res, bool *child_ok, const char *path,
 
 	/* XXX racy */
 	p2->p_mqueue_cnt = p1->p_mqueue_cnt;
+	
 
+	//If not given a wd, use cwdinit, else set up properly.
+	//if (wd == NULL){
 	p2->p_cwdi = cwdinit();
+	if(wd!=NULL){
+		
+		//Think more about which l1 or l2 we're using for both
+		struct proc *p = l2->l_proc;
+	        struct cwdinfo *cwdi;
+	        struct vnode *vp;
 
+		
+		//Need to investgate how to properly deal with errors!
+		//Using l1 to grab the directory	
+	        if ((error = chdir_lookup(wd, UIO_USERSPACE, &vp, l1)) != 0)
+	                return (error);
+
+		//May want a GOTOERROR THINGY
+	        
+		cwdi = p->p_cwdi;
+	        //May not need lock, but probably do.
+		rw_enter(&cwdi->cwdi_lock, RW_WRITER);
+	        //Since in else statement we don't need to release a curr wd since it's not set up.
+		vrele(cwdi->cwdi_cdir);
+	        cwdi->cwdi_cdir = vp;
+	        rw_exit(&cwdi->cwdi_lock);
+			
+	}
 	/*
 	 * Note: p_limit (rlimit stuff) is copy-on-write, so normally
 	 * we just need increase pl_refcnt.
@@ -2685,10 +2712,42 @@ do_posix_spawn(struct lwp *l1, pid_t *pid_res, bool *child_ok, const char *path,
 	(*p2->p_emul->e_syscall_intern)(p2);
 #endif
 	
-	//Really not sure where to put this, but for now we'll try here.
-	//if(wd!=NULL&&strcmp(wd,".")!=0){
-	//	chdir(wd);
-	//}
+	//Seems a good place to put this, once everything else is set up
+	//Not sure about specificssss.
+	
+	
+	//if(wd!=NULL){
+		//register_t retval;	
+		//struct sys_chdir_args uap;		
+		//uap.path = syscallarg(const char *)wd;
+		//error = sys_chdir(l2, &uap, &retval);
+		//*retval = error;		
+		//Using a kind of sys_chdir style. Decided not to call it, but way want to actually call it. Incentive - we pass wd directly. Otherwise, not sure how that will happen.
+		
+		/* {
+		 	syscallarg(const char *) path;
+		   } 
+		*/	
+		
+
+		//Think more about which l1 or l2 we're using for both
+	/*	struct proc *p = l2->l_proc;
+	        struct cwdinfo *cwdi;
+	        struct vnode *vp;
+
+	
+	        if ((error = chdir_lookup(wd, UIO_USERSPACE, &vp, l1)) != 0)
+	                return (error);
+
+			//May want a GOTOERROR THINGY
+	        cwdi = p->p_cwdi;
+	        rw_enter(&cwdi->cwdi_lock, RW_WRITER);
+	        vrele(cwdi->cwdi_cdir);
+	        cwdi->cwdi_cdir = vp;
+	        rw_exit(&cwdi->cwdi_lock);
+			
+	}*/
+	
 
 	/*
 	 * Make child runnable, set start time, and add to run queue except
@@ -2758,6 +2817,7 @@ sys_posix_spawn(struct lwp *l1, const struct sys_posix_spawn_args *uap,
 		syscallarg(const char *) path;
 		syscallarg(const struct posix_spawn_file_actions *) file_actions;
 		syscallarg(const struct posix_spawnattr *) attrp;
+		syscallarg(const char*) wd;
 		syscallarg(char *const *) argv;
 		syscallarg(char *const *) envp;
 	} */	
@@ -2799,7 +2859,7 @@ sys_posix_spawn(struct lwp *l1, const struct sys_posix_spawn_args *uap,
 	 * Do the spawn
 	 */
 	error = do_posix_spawn(l1, &pid, &child_ok, SCARG(uap, path), fa, sa,
-	NULL, SCARG(uap, argv), SCARG(uap, envp), execve_fetch_element);
+	SCARG(uap, wd), SCARG(uap, argv), SCARG(uap, envp), execve_fetch_element);
 	if (error)
 		goto error_exit;
 
