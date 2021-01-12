@@ -2562,28 +2562,24 @@ do_posix_spawn(struct lwp *l1, pid_t *pid_res, bool *child_ok, const char *path,
 	//if (wd == NULL){
 	p2->p_cwdi = cwdinit();
 	if(wd!=NULL){
-		
 		//Think more about which l1 or l2 we're using for both
-		struct proc *p = l2->l_proc;
+		//struct proc *p = l2->l_proc;
 	        struct cwdinfo *cwdi;
 	        struct vnode *vp;
 
-		
 		//Need to investgate how to properly deal with errors!
 		//Using l1 to grab the directory	
 	        if ((error = chdir_lookup(wd, UIO_USERSPACE, &vp, l1)) != 0)
 	                return (error);
-
+		
 		//May want a GOTOERROR THINGY
-	        
-		cwdi = p->p_cwdi;
+		cwdi = p2->p_cwdi;
 	        //May not need lock, but probably do.
 		rw_enter(&cwdi->cwdi_lock, RW_WRITER);
 	        //Since in else statement we don't need to release a curr wd since it's not set up.
 		vrele(cwdi->cwdi_cdir);
 	        cwdi->cwdi_cdir = vp;
-	        rw_exit(&cwdi->cwdi_lock);
-			
+		rw_exit(&cwdi->cwdi_lock);
 	}
 	/*
 	 * Note: p_limit (rlimit stuff) is copy-on-write, so normally
