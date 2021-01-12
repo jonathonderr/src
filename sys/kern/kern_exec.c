@@ -2558,29 +2558,28 @@ do_posix_spawn(struct lwp *l1, pid_t *pid_res, bool *child_ok, const char *path,
 	p2->p_mqueue_cnt = p1->p_mqueue_cnt;
 	
 
-	//If not given a wd, use cwdinit, else set up properly.
-	//if (wd == NULL){
+	//Ideally if not given a wd, only then would use cwdinit
+	//if (wd == NULL)
 	p2->p_cwdi = cwdinit();
-	if(wd!=NULL){
-		//Think more about which l1 or l2 we're using for both
-		//struct proc *p = l2->l_proc;
+
+	//Otherwise set up with the specified working directory
+	//else{
+	if (wd!=NULL){
 	        struct cwdinfo *cwdi;
 	        struct vnode *vp;
 
-		//Need to investgate how to properly deal with errors!
-		//Using l1 to grab the directory	
-	        if ((error = chdir_lookup(wd, UIO_USERSPACE, &vp, l1)) != 0)
-	                return (error);
+	        if ((error = chdir_lookup(wd, UIO_USERSPACE, &vp, l1)) != 0){
+			//printf("Got error: %d in chdir_lookup \n", error);
+			goto error_exit;
+		}
 		
-		//May want a GOTOERROR THINGY
 		cwdi = p2->p_cwdi;
-	        //May not need lock, but probably do.
 		rw_enter(&cwdi->cwdi_lock, RW_WRITER);
-	        //Since in else statement we don't need to release a curr wd since it's not set up.
 		vrele(cwdi->cwdi_cdir);
 	        cwdi->cwdi_cdir = vp;
 		rw_exit(&cwdi->cwdi_lock);
 	}
+
 	/*
 	 * Note: p_limit (rlimit stuff) is copy-on-write, so normally
 	 * we just need increase pl_refcnt.
@@ -2708,42 +2707,7 @@ do_posix_spawn(struct lwp *l1, pid_t *pid_res, bool *child_ok, const char *path,
 	(*p2->p_emul->e_syscall_intern)(p2);
 #endif
 	
-	//Seems a good place to put this, once everything else is set up
-	//Not sure about specificssss.
-	
-	
-	//if(wd!=NULL){
-		//register_t retval;	
-		//struct sys_chdir_args uap;		
-		//uap.path = syscallarg(const char *)wd;
-		//error = sys_chdir(l2, &uap, &retval);
-		//*retval = error;		
-		//Using a kind of sys_chdir style. Decided not to call it, but way want to actually call it. Incentive - we pass wd directly. Otherwise, not sure how that will happen.
 		
-		/* {
-		 	syscallarg(const char *) path;
-		   } 
-		*/	
-		
-
-		//Think more about which l1 or l2 we're using for both
-	/*	struct proc *p = l2->l_proc;
-	        struct cwdinfo *cwdi;
-	        struct vnode *vp;
-
-	
-	        if ((error = chdir_lookup(wd, UIO_USERSPACE, &vp, l1)) != 0)
-	                return (error);
-
-			//May want a GOTOERROR THINGY
-	        cwdi = p->p_cwdi;
-	        rw_enter(&cwdi->cwdi_lock, RW_WRITER);
-	        vrele(cwdi->cwdi_cdir);
-	        cwdi->cwdi_cdir = vp;
-	        rw_exit(&cwdi->cwdi_lock);
-			
-	}*/
-	
 
 	/*
 	 * Make child runnable, set start time, and add to run queue except
