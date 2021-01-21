@@ -2569,7 +2569,7 @@ do_posix_spawn(struct lwp *l1, pid_t *pid_res, bool *child_ok, const char *path,
 	        struct vnode *vp;
 
 	        if ((error = chdir_lookup(wd, UIO_USERSPACE, &vp, l1)) != 0){
-			//printf("Got error: %d in chdir_lookup \n", error);
+			printf("Got error: %d in chdir_lookup \n", error);
 			goto error_exit;
 		}
 		
