@@ -201,16 +201,15 @@ popen(const char *cmd, const char *type)
 
 	MUTEX_LOCK();
 	(void)__readlockenv();
-	char * argv[] = {};
+	char shell[] = "sh";
+	char shellFlag[] = "-c";
+        char * cmdStack = strdup(cmd);
+	char * const argv[4] = {shell, shellFlag, cmdStack, NULL};
 	int status;
 	status = posix_spawn(&pid, _PATH_BSHELL, NULL, NULL, NULL, argv, environ);
 	if (status == 0){
-		printf("Child pid: %i\n", status);
-		if(waitpid(pid, &status, 0) != -1){
-			_exit(127);
-		} else {
-			perror("waitpid");
-		}	
+		pdes_child(pdes, type);
+		_exit(127);
 	} else {
 		serrno = errno;
 		(void)__unlockenv();
