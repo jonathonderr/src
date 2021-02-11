@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 #include <unistd.h>
 #include <spawn.h>
 #include <sys/wait.h>
@@ -13,7 +12,7 @@ void run_cmd(char *cmd){
       status = system(cmd);
       
       if(status==-1){	      
-      printf("posix_spawn: %s\n", strerror(status));
+     	 printf("system error: %s\n", strerror(status));
       }
 }
 
