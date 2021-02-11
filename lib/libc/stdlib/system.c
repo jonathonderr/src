@@ -38,6 +38,7 @@ __RCSID("$NetBSD: system.c,v 1.25 2015/01/20 18:31:25 christos Exp $");
 #endif
 #endif /* LIBC_SCCS and not lint */
 
+#include <stdio.h>
 #include "namespace.h"
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -46,6 +47,7 @@ __RCSID("$NetBSD: system.c,v 1.25 2015/01/20 18:31:25 christos Exp $");
 #include <stdlib.h>
 #include <unistd.h>
 #include <paths.h>
+#include <spawn.h>
 
 #include "env.h"
 
@@ -88,21 +90,39 @@ system(const char *command)
 		return -1;
 	}
 
+	printf("I CHANGE THINGS????");
+
 	(void)__readlockenv();
-	switch(pid = vfork()) {
-	case -1:			/* error */
-		(void)__unlockenv();
+	
+	int status;
+	status = posix_spawn(&pid, _PATH_BSHELL, NULL, NULL, NULL, __UNCONST(argp), environ);
+	if(status == 0){
 		sigaction(SIGINT, &intsa, NULL);
 		sigaction(SIGQUIT, &quitsa, NULL);
 		(void)sigprocmask(SIG_SETMASK, &omask, NULL);
-		return -1;
-	case 0:				/* child */
-		sigaction(SIGINT, &intsa, NULL);
-		sigaction(SIGQUIT, &quitsa, NULL);
-		(void)sigprocmask(SIG_SETMASK, &omask, NULL);
-		execve(_PATH_BSHELL, __UNCONST(argp), environ);
 		_exit(127);
+	}else{
+		(void)__unlockenv();
+        	sigaction(SIGINT, &intsa, NULL);
+		sigaction(SIGQUIT, &quitsa, NULL);
+		(void)sigprocmask(SIG_SETMASK, &omask, NULL);
+		return -1;	
 	}
+
+	//switch(pid = vfork()) {
+	//case -1:			/* error */
+	//	(void)__unlockenv();
+	//	sigaction(SIGINT, &intsa, NULL);
+	//	sigaction(SIGQUIT, &quitsa, NULL);
+	//	(void)sigprocmask(SIG_SETMASK, &omask, NULL);
+	//	return -1;
+	//case 0:				/* child */
+	//	sigaction(SIGINT, &intsa, NULL);
+	//	sigaction(SIGQUIT, &quitsa, NULL);
+	//	(void)sigprocmask(SIG_SETMASK, &omask, NULL);
+	//	execve(_PATH_BSHELL, __UNCONST(argp), environ);
+	//	_exit(127);
+	//}
 	(void)__unlockenv();
 
 	while (waitpid(pid, &pstat, 0) == -1) {
