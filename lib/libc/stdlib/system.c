@@ -90,18 +90,12 @@ system(const char *command)
 		return -1;
 	}
 
-	printf("I CHANGE THINGS????");
-
 	(void)__readlockenv();
 	
 	int status;
 	status = posix_spawn(&pid, _PATH_BSHELL, NULL, NULL, NULL, __UNCONST(argp), environ);
-	if(status == 0){
-		sigaction(SIGINT, &intsa, NULL);
-		sigaction(SIGQUIT, &quitsa, NULL);
-		(void)sigprocmask(SIG_SETMASK, &omask, NULL);
-		_exit(127);
-	}else{
+	
+	if(status!=0){
 		(void)__unlockenv();
         	sigaction(SIGINT, &intsa, NULL);
 		sigaction(SIGQUIT, &quitsa, NULL);
@@ -109,20 +103,6 @@ system(const char *command)
 		return -1;	
 	}
 
-	//switch(pid = vfork()) {
-	//case -1:			/* error */
-	//	(void)__unlockenv();
-	//	sigaction(SIGINT, &intsa, NULL);
-	//	sigaction(SIGQUIT, &quitsa, NULL);
-	//	(void)sigprocmask(SIG_SETMASK, &omask, NULL);
-	//	return -1;
-	//case 0:				/* child */
-	//	sigaction(SIGINT, &intsa, NULL);
-	//	sigaction(SIGQUIT, &quitsa, NULL);
-	//	(void)sigprocmask(SIG_SETMASK, &omask, NULL);
-	//	execve(_PATH_BSHELL, __UNCONST(argp), environ);
-	//	_exit(127);
-	//}
 	(void)__unlockenv();
 
 	while (waitpid(pid, &pstat, 0) == -1) {
