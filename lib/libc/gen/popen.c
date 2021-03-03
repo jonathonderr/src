@@ -120,33 +120,34 @@ pdes_get(int *pdes, const char **type)
 }
 
 static void
-pdes_child(int *pdes, const char *type)
+pdes_child(int *pdes, const char *type, posix_spawn_file_actions_t *file_actions)
 {
 	struct pid *old;
 
 	/* POSIX.2 B.3.2.2 "popen() shall ensure that any streams
 	   from previous popen() calls that remain open in the 
 	   parent process are closed in the new child process. */
-	for (old = pidlist; old; old = old->next)
+	for (old = pidlist; old; old = old->next) {
 #ifdef _REENTRANT
-		(void)close(old->fd); /* don't allow a flush */
+		posix_spawn_file_actions_addclose(file_actions, old->fd);
 #else
-		(void)close(fileno(old->fp)); /* don't allow a flush */
+		posix_spawn_file_actions_addclose(file_actions, old->fp);
 #endif
+	}
 
 	if (type[0] == 'r') {
-		(void)close(pdes[0]);
+		posix_spawn_file_actions_addclose(file_actions, pdes[0]);
 		if (pdes[1] != STDOUT_FILENO) {
-			(void)dup2(pdes[1], STDOUT_FILENO);
-			(void)close(pdes[1]);
+			posix_spawn_file_actions_adddup2(file_actions, pdes[1], STDOUT_FILENO);
+			posix_spawn_file_actions_addclose(file_actions, pdes[1]);
 		}
 		if (type[1] == '+')
-			(void)dup2(STDOUT_FILENO, STDIN_FILENO);
+			posix_spawn_file_actions_adddup2(file_actions, STDOUT_FILENO, STDIN_FILENO);
 	} else {
-		(void)close(pdes[1]);
+		posix_spawn_file_actions_addclose(file_actions, pdes[1]);
 		if (pdes[0] != STDIN_FILENO) {
-			(void)dup2(pdes[0], STDIN_FILENO);
-			(void)close(pdes[0]);
+			posix_spawn_file_actions_adddup2(file_actions, pdes[0], STDIN_FILENO);
+			posix_spawn_file_actions_addclose(file_actions, pdes[0]);
 		}
 	}
 }
@@ -206,11 +207,13 @@ popen(const char *cmd, const char *type)
         char * cmdStack = strdup(cmd);
 	char * const argv[4] = {shell, shellFlag, cmdStack, NULL};
 	int status;
-	status = posix_spawn(&pid, _PATH_BSHELL, NULL, NULL, NULL, argv, environ);
-	if (status == 0){
-		pdes_child(pdes, type);
-		_exit(127);
-	} else {
+
+	posix_spawn_file_actions_t file_actions;
+	posix_spawn_file_actions_init(&file_actions);
+	pdes_child(pdes, type, &file_actions);
+
+	status = posix_spawn(&pid, _PATH_BSHELL, &file_actions, NULL, NULL, argv, environ);
+	if (status != 0){
 		serrno = errno;
 		(void)__unlockenv();
 		MUTEX_UNLOCK();
@@ -250,7 +253,7 @@ popenve(const char *cmd, char *const *argv, char *const *envp, const char *type)
 		return NULL;
 		/* NOTREACHED */
 	case 0:				/* Child. */
-		pdes_child(pdes, type);
+		pdes_child(pdes, type, NULL);
 		execve(cmd, argv, envp);
 		_exit(127);
 		/* NOTREACHED */
