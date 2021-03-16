@@ -2128,7 +2128,7 @@ handle_posix_spawn_attrs(struct posix_spawnattr *attrs, struct proc *parent)
 	mutex_enter(proc_lock);
 	/*
 	 * p_stat should be SACTIVE, so we need to adjust the
-	 * parene's p_nstopchild here.  For safety, just make
+	 * parent's p_nstopchild here.  For safety, just make
 	 * we're on the good side of SDEAD before we adjust.
 	 */
 	int ostat = p->p_stat;
@@ -2460,9 +2460,6 @@ do_posix_spawn(struct lwp *l1, pid_t *pid_res, bool *child_ok, const char *path,
 
 	p1 = l1->l_proc;
 
-	/* Test Print for Build */
-	printf("do_posix_spawn called!\n");
-
 	/* Allocate and init spawn_data */
 	spawn_data = kmem_zalloc(sizeof(*spawn_data), KM_SLEEP);
 	spawn_data->sed_refcnt = 1; /* only parent so far */
@@ -2556,22 +2553,16 @@ do_posix_spawn(struct lwp *l1, pid_t *pid_res, bool *child_ok, const char *path,
 
 	/* XXX racy */
 	p2->p_mqueue_cnt = p1->p_mqueue_cnt;
-	
 
-	//Ideally if not given a wd, only then would use cwdinit
-	//if (wd == NULL)
 	p2->p_cwdi = cwdinit();
 
-	//Otherwise set up with the specified working directory
-	//else{
+	/*If specified working directory, look it up and set p2->p_cwdi if no errors*/
 	if (wd!=NULL){
 	        struct cwdinfo *cwdi;
 	        struct vnode *vp;
 
-	        if ((error = chdir_lookup(wd, UIO_USERSPACE, &vp, l1)) != 0){
-			printf("Got error: %d in chdir_lookup \n", error);
+	        if ((error = chdir_lookup(wd, UIO_USERSPACE, &vp, l1)) != 0)
 			goto error_exit;
-		}
 		
 		cwdi = p2->p_cwdi;
 		rw_enter(&cwdi->cwdi_lock, RW_WRITER);
