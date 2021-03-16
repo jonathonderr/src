@@ -80,13 +80,9 @@ the shell cannot be obtained,
 returns -1 and sets
 .Va errno
 to indicate the error.
-If execution of the shell fails,
-.Fn system
-returns the termination status for a program that terminates with a call of
-.Fn exit 127 .
 .Sh SEE ALSO
 .Xr sh 1 ,
-.Xr execve 2 ,
+.Xr posix_spawn 3 ,
 .Xr waitpid 2 ,
 .Xr popen 3 ,
 .Xr shquote 3
