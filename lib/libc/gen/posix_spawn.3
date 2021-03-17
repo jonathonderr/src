@@ -99,6 +99,14 @@ or
 .Fn posix_spawnp
 function.
 .Pp
+The
+.Fa wd
+parameter dictates where the posix_spawn() spawns the new child process.
+If left null it will spawn the process inside of the current working directory
+in which
+.Fn posix_spawn 
+was called from.
+.Pp
 The argument
 .Fa envp
 is an array of character pointers to null-terminated strings.
@@ -239,12 +247,6 @@ specified in the spawn-schedpolicy attribute of the object referenced by
 .Fa attrp
 and the schedulinttribute of the same objg parameters specified in the spawn-schedparam
 attribute of the same object.
-.Pp
-The
-.Fa wd
-Parameter dictates where the posix_spawn() spawns the new child process.
-If left null it will spawn the process inside of the current working directory
-in which posix_spawn was called from.
 .Pp
 The
 .Dv POSIX_SPAWN_RESETIDS
@@ -440,8 +442,12 @@ objects exceeds the allowed limit,
 .Er EINVAL
 is returned.
 .It
-If the wd parameter is not null but the directory is invalid, it will exit the posix_spawn
-call and return the error returned by chdir_lookup() 
+If the 
+.Fa wd 
+parameter is not null but there is a problem looking up the directory, 
+.Fn posix_spawn  
+will exit and return the proper error associated with 
+.Fn chdir 
 .El
 .Sh SEE ALSO
 .Xr close 2 ,
