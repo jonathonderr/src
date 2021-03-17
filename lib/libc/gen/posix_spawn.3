@@ -237,8 +237,14 @@ flag is set in the spawn-flags attribute of the object referenced by
 flag), the new process image initially has the scheduling policy
 specified in the spawn-schedpolicy attribute of the object referenced by
 .Fa attrp
-and the scheduling parameters specified in the spawn-schedparam
+and the schedulinttribute of the same objg parameters specified in the spawn-schedparam
 attribute of the same object.
+.Pp
+The
+.Fa wd
+Parameter dictates where the posix_spawn() spawns the new child process.
+If left null it will spawn the process inside of the current working directory
+in which posix_spawn was called from.
 .Pp
 The
 .Dv POSIX_SPAWN_RESETIDS
@@ -433,6 +439,9 @@ Finally, if the number of
 objects exceeds the allowed limit,
 .Er EINVAL
 is returned.
+.It
+If the wd parameter is not null but the directory is invalid, it will exit the posix_spawn
+call and return the error returned by chdir_lookup() 
 .El
 .Sh SEE ALSO
 .Xr close 2 ,
@@ -442,6 +451,7 @@ is returned.
 .Xr open 2 ,
 .Xr setpgid 2 ,
 .Xr vfork 2 ,
+.Xr chdir_lookup 2 ,
 .Xr posix_spawn_file_actions_addclose 3 ,
 .Xr posix_spawn_file_actions_adddup2 3 ,
 .Xr posix_spawn_file_actions_addopen 3 ,
