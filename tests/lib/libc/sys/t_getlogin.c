@@ -95,7 +95,7 @@ ATF_TC_BODY(setlogin_basic, tc)
 
 		(void)setsid();
 
-		if (setlogin("foobar") != 0)
+		if (setlogin("barbar") != 0)
 			_exit(EXIT_FAILURE);
 
 		name = getlogin();
@@ -103,7 +103,7 @@ ATF_TC_BODY(setlogin_basic, tc)
 		if (name == NULL)
 			_exit(EXIT_FAILURE);
 
-		if (strcmp(name, "foobar") != 0)
+		if (strcmp(name, "barbar") != 0)
 			_exit(EXIT_FAILURE);
 
 		_exit(EXIT_SUCCESS);
@@ -159,7 +159,7 @@ ATF_TC_BODY(setlogin_err, tc)
 		if (name == NULL)
 			_exit(EXIT_FAILURE);
 
-		if (strcmp(name, "foobar") == 0)
+		if (strcmp(name, "barbar") == 0)
 			_exit(EXIT_FAILURE);
 
 		_exit(EXIT_SUCCESS);
@@ -201,7 +201,7 @@ ATF_TC_BODY(setlogin_perm, tc)
 
 		errno = 0;
 
-		if (setlogin("foobar") != -1)
+		if (setlogin("barbar") != -1)
 			_exit(EXIT_FAILURE);
 
 		if (errno != EPERM)
@@ -212,7 +212,7 @@ ATF_TC_BODY(setlogin_perm, tc)
 		if (name == NULL)
 			_exit(EXIT_FAILURE);
 
-		if (strcmp(name, "foobar") == 0)
+		if (strcmp(name, "barbar") == 0)
 			_exit(EXIT_FAILURE);
 
 		_exit(EXIT_SUCCESS);

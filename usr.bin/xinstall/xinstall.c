@@ -999,7 +999,7 @@ run(const char *command, const char *flags, const char *to_name, int errunlink)
 
 #ifdef HAVE_POSIX_SPAWN
 	if (*command == '/')
-		rv = posix_spawn(NULL, command, NULL, NULL, args, NULL);
+		rv = posix_spawn(NULL, command, NULL, NULL, NULL, args, NULL);
 	else
 		rv = posix_spawnp(NULL, command, NULL, NULL, args, NULL);
 	if (rv != 0)

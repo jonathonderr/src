@@ -111,7 +111,7 @@ ATF_TC_BODY(t_spawn_openmode, tc)
 	    TESTFILE, O_RDONLY, 0);
 	posix_spawn_file_actions_addopen(&fa, fileno(stdout),
 	    CHECKFILE, O_WRONLY|O_CREAT, 0600);
-	err = posix_spawn(&pid, "/bin/cat", &fa, NULL, args, NULL);
+	err = posix_spawn(&pid, "/bin/cat", &fa, NULL, NULL, args, NULL);
 	posix_spawn_file_actions_destroy(&fa);
 
 	ATF_REQUIRE(err == 0);
@@ -137,7 +137,7 @@ ATF_TC_BODY(t_spawn_openmode, tc)
 	    TESTFILE, O_RDONLY, 0);
 	posix_spawn_file_actions_addopen(&fa, fileno(stdout),
 	    CHECKFILE, O_WRONLY|O_APPEND, 0);
-	err = posix_spawn(&pid, "/bin/cat", &fa, NULL, args, NULL);
+	err = posix_spawn(&pid, "/bin/cat", &fa, NULL, NULL, args, NULL);
 	posix_spawn_file_actions_destroy(&fa);
 
 	ATF_REQUIRE(err == 0);
@@ -163,7 +163,7 @@ ATF_TC_BODY(t_spawn_openmode, tc)
 	    TESTFILE, O_RDONLY, 0);
 	posix_spawn_file_actions_addopen(&fa, fileno(stdin),
 	    CHECKFILE, O_WRONLY, 0);
-	err = posix_spawn(&pid, "/bin/cat", &fa, NULL, args, NULL);
+	err = posix_spawn(&pid, "/bin/cat", &fa, NULL, NULL, args, NULL);
 	posix_spawn_file_actions_destroy(&fa);
 
 	ATF_REQUIRE(err == 0);
@@ -205,7 +205,7 @@ ATF_TC_BODY(t_spawn_reopen, tc)
 	posix_spawn_file_actions_init(&fa);
 	posix_spawn_file_actions_addopen(&fa, fileno(stdin),
 	    "/dev/null", O_RDONLY, 0);
-	err = posix_spawn(&pid, "/bin/cat", &fa, NULL, args, NULL);
+	err = posix_spawn(&pid, "/bin/cat", &fa, NULL, NULL, args, NULL);
 	posix_spawn_file_actions_destroy(&fa);
 
 	ATF_REQUIRE(err == 0);
@@ -233,7 +233,7 @@ ATF_TC_BODY(t_spawn_open_nonexistent, tc)
 	posix_spawn_file_actions_init(&fa);
 	posix_spawn_file_actions_addopen(&fa, STDIN_FILENO,
 	    "./non/ex/ist/ent", O_RDONLY, 0);
-	err = posix_spawn(&pid, "/bin/cat", &fa, NULL, args, NULL);
+	err = posix_spawn(&pid, "/bin/cat", &fa, NULL, NULL, args, NULL);
 	if (err == 0) {
 		/*
 		 * The child has been created - it should fail and
@@ -281,7 +281,7 @@ ATF_TC_BODY(t_spawn_open_nonexistent_diag, tc)
 	posix_spawn_file_actions_init(&fa);
 	posix_spawn_file_actions_addopen(&fa, STDIN_FILENO,
 	    "./non/ex/ist/ent", O_RDONLY, 0);
-	err = posix_spawn(&pid, "/bin/cat", &fa, &attr, args, NULL);
+	err = posix_spawn(&pid, "/bin/cat", &fa, &attr, NULL, args, NULL);
 	ATF_REQUIRE(err == ENOENT);
 	posix_spawn_file_actions_destroy(&fa);
 	posix_spawnattr_destroy(&attr);
@@ -322,7 +322,7 @@ ATF_TC_BODY(t_spawn_fileactions, tc)
 
 	snprintf(helper, sizeof helper, "%s/h_fileactions",
 	    atf_tc_get_config_var(tc, "srcdir"));
-	err = posix_spawn(&pid, helper, &fa, NULL, args, NULL);
+	err = posix_spawn(&pid, helper, &fa, NULL, NULL, args, NULL);
 	posix_spawn_file_actions_destroy(&fa);
 
 	ATF_REQUIRE(err == 0);
@@ -359,7 +359,7 @@ ATF_TC_BODY(t_spawn_empty_fileactions, tc)
 	freopen(CHECKFILE, "w", stdout);
 
 	posix_spawn_file_actions_init(&fa);
-	err = posix_spawn(&pid, "/bin/cat", &fa, NULL, args, NULL);
+	err = posix_spawn(&pid, "/bin/cat", &fa, NULL, NULL, args, NULL);
 	posix_spawn_file_actions_destroy(&fa);
 
 	ATF_REQUIRE(err == 0);

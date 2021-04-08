@@ -477,7 +477,7 @@ ATF_TC_BODY(mmap_truncate_signal, tc)
 	if (fd < 0)
 		return;
 
-	ATF_REQUIRE(write(fd, "foo\n", 5) == 5);
+	ATF_REQUIRE(write(fd, "bar\n", 5) == 5);
 
 	map = mmap(NULL, page, PROT_READ, MAP_FILE|MAP_PRIVATE, fd, 0);
 	ATF_REQUIRE(map != MAP_FAILED);

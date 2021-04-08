@@ -109,6 +109,7 @@ __KERNEL_RCSID(0, "$NetBSD: kern_exec.c,v 1.500 2020/05/07 20:02:34 kamil Exp $"
 #include <sys/spawn.h>
 #include <sys/prot.h>
 #include <sys/cprng.h>
+#include <sys/vfs_syscalls.h>
 
 #include <uvm/uvm_extern.h>
 
@@ -2444,6 +2445,7 @@ int
 do_posix_spawn(struct lwp *l1, pid_t *pid_res, bool *child_ok, const char *path,
 	struct posix_spawn_file_actions *fa,
 	struct posix_spawnattr *sa,
+	const char* wd,
 	char *const *argv, char *const *envp,
 	execve_fetch_element_t fetch)
 {
@@ -2553,6 +2555,21 @@ do_posix_spawn(struct lwp *l1, pid_t *pid_res, bool *child_ok, const char *path,
 	p2->p_mqueue_cnt = p1->p_mqueue_cnt;
 
 	p2->p_cwdi = cwdinit();
+
+	/*If specified working directory, look it up and set p2->p_cwdi if no errors*/
+	if (wd!=NULL){
+	        struct cwdinfo *cwdi;
+	        struct vnode *vp;
+
+	        if ((error = chdir_lookup(wd, UIO_USERSPACE, &vp, l1)) != 0)
+			goto error_exit;
+		
+		cwdi = p2->p_cwdi;
+		rw_enter(&cwdi->cwdi_lock, RW_WRITER);
+		vrele(cwdi->cwdi_cdir);
+	        cwdi->cwdi_cdir = vp;
+		rw_exit(&cwdi->cwdi_lock);
+	}
 
 	/*
 	 * Note: p_limit (rlimit stuff) is copy-on-write, so normally
@@ -2680,6 +2697,8 @@ do_posix_spawn(struct lwp *l1, pid_t *pid_res, bool *child_ok, const char *path,
 #ifdef __HAVE_SYSCALL_INTERN
 	(*p2->p_emul->e_syscall_intern)(p2);
 #endif
+	
+		
 
 	/*
 	 * Make child runnable, set start time, and add to run queue except
@@ -2749,6 +2768,7 @@ sys_posix_spawn(struct lwp *l1, const struct sys_posix_spawn_args *uap,
 		syscallarg(const char *) path;
 		syscallarg(const struct posix_spawn_file_actions *) file_actions;
 		syscallarg(const struct posix_spawnattr *) attrp;
+		syscallarg(const char*) wd;
 		syscallarg(char *const *) argv;
 		syscallarg(char *const *) envp;
 	} */	
@@ -2790,7 +2810,7 @@ sys_posix_spawn(struct lwp *l1, const struct sys_posix_spawn_args *uap,
 	 * Do the spawn
 	 */
 	error = do_posix_spawn(l1, &pid, &child_ok, SCARG(uap, path), fa, sa,
-	    SCARG(uap, argv), SCARG(uap, envp), execve_fetch_element);
+	SCARG(uap, wd), SCARG(uap, argv), SCARG(uap, envp), execve_fetch_element);
 	if (error)
 		goto error_exit;
 

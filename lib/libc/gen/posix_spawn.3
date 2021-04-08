@@ -48,7 +48,7 @@
 .Sh SYNOPSIS
 .In spawn.h
 .Ft int
-.Fn posix_spawn "pid_t *restrict pid" "const char *restrict path" "const posix_spawn_file_actions_t *file_actions" "const posix_spawnattr_t *restrict attrp" "char *const argv[restrict]" "char *const envp[restrict]"
+.Fn posix_spawn "pid_t *restrict pid" "const char *restrict path" "const posix_spawn_file_actions_t *file_actions" "const posix_spawnattr_t *restrict attrp" "const char *restrict wd" "char *const argv[restrict]" "char *const envp[restrict]"
 .Ft int
 .Fn posix_spawnp "pid_t *restrict pid" "const char *restrict file" "const posix_spawn_file_actions_t *file_actions" "const posix_spawnattr_t *restrict attrp" "char *const argv[restrict]" "char *const envp[restrict]"
 .Sh DESCRIPTION
@@ -98,6 +98,14 @@ the
 or
 .Fn posix_spawnp
 function.
+.Pp
+The
+.Fa wd
+parameter dictates where the posix_spawn() spawns the new child process.
+If left null it will spawn the process inside of the current working directory
+in which
+.Fn posix_spawn 
+was called from.
 .Pp
 The argument
 .Fa envp
@@ -237,7 +245,7 @@ flag is set in the spawn-flags attribute of the object referenced by
 flag), the new process image initially has the scheduling policy
 specified in the spawn-schedpolicy attribute of the object referenced by
 .Fa attrp
-and the scheduling parameters specified in the spawn-schedparam
+and the schedulinttribute of the same objg parameters specified in the spawn-schedparam
 attribute of the same object.
 .Pp
 The
@@ -433,6 +441,13 @@ Finally, if the number of
 objects exceeds the allowed limit,
 .Er EINVAL
 is returned.
+.It
+If the 
+.Fa wd 
+parameter is not null but there is a problem looking up the directory, 
+.Fn posix_spawn  
+will exit and return the proper error associated with 
+.Fn chdir 
 .El
 .Sh SEE ALSO
 .Xr close 2 ,

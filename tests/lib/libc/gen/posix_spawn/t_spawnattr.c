@@ -137,7 +137,7 @@ ATF_TC_BODY(t_spawnattr, tc)
 
 	sprintf(helper, "%s/h_spawnattr",
 	    atf_tc_get_config_var(tc, "srcdir"));
-	err = posix_spawn(&pid, helper, NULL, &attr, args, NULL);
+	err = posix_spawn(&pid, helper, NULL, &attr, NULL, args, NULL);
 	ATF_REQUIRE_MSG(err == 0, "error %d", err);
 
 	child_scheduler = sched_getscheduler(pid);
